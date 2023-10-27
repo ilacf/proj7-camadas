@@ -29,43 +29,43 @@ def defineFreqs(numero):
     f3v = 852
     f4v = 941
 
-    if numero == 1:
+    if numero == '1':
         f1 = f1v
         f2 = f1h
 
-    elif numero == 2:
+    elif numero == '2':
         f1 = f1v
         f2 = f2h
     
-    elif numero == 3:
+    elif numero == '3':
         f1 = f1v
         f2 = f3h
 
-    elif numero == 4:
+    elif numero == '4':
         f1 = f2v
         f2 = f1h
 
-    elif numero == 5:
+    elif numero == '5':
         f1 = f2v
         f2 = f2h
     
-    elif numero == 6:
+    elif numero == '6':
         f1 = f2v
         f2 = f3h
 
-    elif numero == 7:
+    elif numero == '7':
         f1 = f3v
         f2 = f1h
 
-    elif numero == 8:
+    elif numero == '8':
         f1 = f3v
         f2 = f2h
 
-    elif numero == 9:
+    elif numero == '9':
         f1 = f3v
         f2 = f3h
 
-    elif numero == 0:
+    elif numero == '0':
         f1 = f4v
         f2 = f2h
 
@@ -116,35 +116,36 @@ def main():
     lista_t = np.linspace(0, 1, 44100)
     taxa_amostragem = 44100
     sd.default.samplerate = taxa_amostragem
-    numero = print(input("digite seu numero: "))
+    numero = input("digite seu numero: ")
     freqs = defineFreqs(numero)
-    print("Gerando Tom referente ao símbolo : {}".format(numero))
-    senos = []
-    for t in lista_t:
-        senoide1 = 1*sin(2*pi*freqs[0]*t)
-        senoide2 = 1*sin(2*pi*freqs[1]*t)
-        sinal = senoide1+senoide2
-        senos.append(sinal)
-        sinais = suaBibSignal.calcFFT(sinal, taxa_amostragem)
+    print(f"Gerando Tom referente ao símbolo: {numero}")
+
+
+    senoide1 = 1*np.sin(2*pi*freqs[0]*lista_t)
+    print(senoide1)
+
+    senoide2 = 1*np.sin(2*pi*freqs[1]*lista_t)
+    sinal = senoide1+senoide2
+    sinais = suaBibSignal.calcFFT(sinal, taxa_amostragem)
 
     print("Executando as senoides (emitindo o som)")
-    sd.play(senos)
-    time.sleep(2)
+    sd.play(sinal)
 
     plt.figure(1)
     plt.xlabel("tempo")
     plt.ylabel("frequencias")
-    plt.plot(lista_t, senos)
+    plt.plot(lista_t, sinal)
 
-    plt.figure(2)
-    plt.xlabel("frequencia")
-    plt.ylabel("sinal emitido (transformada de fourier)")
-    plt.plot(senos, sinais)
+    # plt.figure(2)
+    # plt.xlabel("frequencia")
+    # plt.ylabel("sinal emitido (transformada de fourier)")
+    # plt.plot(senos, sinais)
 
     plt.show()
     sd.wait()
+    signal_handler()
 
-    suaBibSignal.plotFFT(signal, fs)
+    # plotFFT(signal, fs)
     
 
 if __name__ == "__main__":
