@@ -7,8 +7,6 @@ import sounddevice as sd
 import matplotlib.pyplot as plt
 import time
 
-from scipy.signal import find_peaks
-
 
 #funcao para transformas intensidade acustica em dB, caso queira usar
 def todB(s):
@@ -33,19 +31,23 @@ def main():
                   '6': (770, 1477), 
                   '7': (852, 1209), 
                   '8': (852, 1336),
-                  '9': (852, 1477), 
-                  '0': (941, 1336)}
+                  '9': (852, 1477),
+                  '*': (941, 1209), 
+                  '0': (941, 1336),
+                  '#': (941, 1477)
+                  }
        
     #voce importou a bilioteca sounddevice como, por exemplo, sd. entao
     # os seguintes parametros devem ser setados:
 
-    freqDeAmostragem = 44100 #taxa de amostragem
+    sd.default.samplerate = 44100 #taxa de amostragem
+    fs = 44100
     sd.default.channels = 1 #numCanais # o numero de canais, tipicamente são 2. Placas com dois canais. Se ocorrer problemas pode tentar com 1. No caso de 2 canais, ao gravar um audio, terá duas listas
     duration = 5 # #tempo em segundos que ira aquisitar o sinal acustico captado pelo mic
     
     #calcule o numero de amostras "numAmostras" que serao feitas (numero de aquisicoes) durante a gracação. Para esse cálculo você deverá utilizar a taxa de amostragem e o tempo de gravação
 
-    numAmostras = freqDeAmostragem * duration
+    numAmostras = int(fs * duration)
 
     #faca um print na tela dizendo que a captacao comecará em n segundos. e entao 
     #use um time.sleep para a espera
@@ -60,7 +62,7 @@ def main():
 
     #para gravar, utilize
 
-    audio = sd.rec(int(numAmostras), freqDeAmostragem, channels=1)
+    audio = sd.rec(int(numAmostras), fs, channels=1)
     sd.wait()
     print("gravacao finalizada")
 
@@ -82,8 +84,8 @@ def main():
 
     ## Calcule e plote o Fourier do sinal audio. como saida tem-se a amplitude e as frequencias
 
-    xf, yf = signal.calcFFT(dados, freqDeAmostragem)
-    signal.plotFFT(dados, freqDeAmostragem)
+    xf, yf = signal.calcFFT(dados, fs)
+    signal.plotFFT(dados, fs)
 
     #agora, voce tem os picos da transformada, que te informam quais sao as frequencias mais presentes no sinal. Alguns dos picos devem ser correspondentes às frequencias do DTMF!
     #Para descobrir a tecla pressionada, voce deve extrair os picos e compara-los à tabela DTMF
@@ -106,7 +108,7 @@ def main():
     #Se acertou, parabens! Voce construiu um sistema DTMF
 
     tecla = None
-    for freq in frequencias:
+    for freq in frequencias.values():
         if np.isclose(xf[index[0]], freq[0], rtol=0.1) and np.isclose(xf[index[1]], freq[1], rtol=0.1):
             tecla = frequencias[freq]
             break
