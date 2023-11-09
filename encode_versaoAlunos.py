@@ -1,6 +1,6 @@
 
 #importe as bibliotecas
-import suaBibSignal
+from suaBibSignal import *
 import numpy as np
 import sounddevice as sd
 import matplotlib.pyplot as plt
@@ -17,84 +17,6 @@ def signal_handler(signal, frame):
 def todB(s):
     sdB = 10*np.log10(s)
     return(sdB)
-
-def defineFreqs(numero):
-    f1h = 1209
-    f2h = 1336
-    f3h = 1477
-    f4h = 1633
-
-    f1v = 697
-    f2v = 770
-    f3v = 852
-    f4v = 941
-
-    if numero == '1':
-        f1 = f1v
-        f2 = f1h
-
-    elif numero == '2':
-        f1 = f1v
-        f2 = f2h
-    
-    elif numero == '3':
-        f1 = f1v
-        f2 = f3h
-
-    elif numero == '4':
-        f1 = f2v
-        f2 = f1h
-
-    elif numero == '5':
-        f1 = f2v
-        f2 = f2h
-    
-    elif numero == '6':
-        f1 = f2v
-        f2 = f3h
-
-    elif numero == '7':
-        f1 = f3v
-        f2 = f1h
-
-    elif numero == '8':
-        f1 = f3v
-        f2 = f2h
-
-    elif numero == '9':
-        f1 = f3v
-        f2 = f3h
-
-    elif numero == '0':
-        f1 = f4v
-        f2 = f2h
-
-    elif numero == "#":
-        f1 = f4v
-        f2 = f3h
-
-    elif numero == "*":
-        f1 = f4v
-        f2 = f1h
-
-    elif numero == "A":
-        f1 = f1v
-        f2 = f4h
-
-    elif numero == "B":
-        f1 = f2v
-        f2 = f4h
-
-    elif numero == "C":
-        f1 = f3v
-        f2 = f4h
-
-    elif numero == "D":
-        f1 = f4v
-        f2 = f4h
-    
-    return [f1, f2]
-
 
 def main():
 
@@ -113,40 +35,40 @@ def main():
     
     # construa o gráfico do sinal emitido e o gráfico da transformada de Fourier. Cuidado. Como as frequencias sao relativamente altas, voce deve plotar apenas alguns pontos (alguns periodos) para conseguirmos ver o sinal
 
-    lista_t = np.linspace(0, 1, 44100)
-    taxa_amostragem = 44100
-    sd.default.samplerate = taxa_amostragem
-    numero = input("digite seu numero: ")
-    freqs = defineFreqs(numero)
-    print(f"Gerando Tom referente ao símbolo: {numero}")
+    frequencias = {'1': (697, 1209), 
+                  '2': (697, 1336), 
+                  '3': (697, 1477), 
+                  '4': (770, 1209), 
+                  '5': (770, 1336), 
+                  '6': (770, 1477), 
+                  '7': (852, 1209), 
+                  '8': (852, 1336),
+                  '9': (852, 1477), 
+                  '0': (941, 1336)}
 
+    num = input("Digite seu número: ")
 
-    senoide1 = 1*np.sin(2*pi*freqs[0]*lista_t)
-    print(senoide1)
+    print(f'Gerando Tom referente ao símbolo: {num}')
 
-    senoide2 = 1*np.sin(2*pi*freqs[1]*lista_t)
-    sinal = senoide1+senoide2
-    sinais = suaBibSignal.calcFFT(sinal, taxa_amostragem)
+    fs = 44100
+    tempo = 5
 
-    print("Executando as senoides (emitindo o som)")
-    sd.play(sinal)
-
-    plt.figure(1)
-    plt.xlabel("tempo")
-    plt.ylabel("frequencias")
-    plt.plot(lista_t, sinal)
-
-    # plt.figure(2)
-    # plt.xlabel("frequencia")
-    # plt.ylabel("sinal emitido (transformada de fourier)")
-    # plt.plot(senos, sinais)
-
-    plt.show()
-    sd.wait()
-    signal_handler()
-
-    # plotFFT(signal, fs)
+    t = np.linspace(0, tempo, fs*tempo, endpoint=False)
     
+    s1 = np.sin(2*np.pi*frequencias[num[0]][0]*t)
+    s2 = np.sin(2*np.pi*frequencias[num[0]][1]*t)
+
+    s = s1 + s2
+
+    sd.play(s, fs)
+    sd.wait()
+
+    plt.plot(t[:1000], s[:1000])
+    plt.xlabel('Tempo (s)')
+    plt.ylabel('Amplitude')
+    plt.show()
+
+    signalMeu().plotFFT(s, fs)
 
 if __name__ == "__main__":
     main()
